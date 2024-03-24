@@ -5,6 +5,7 @@ import random
 
 #coicop codes---------------------------------------------------
 def findCoicop(company_name, all_data):
+  """method to categorise a company under a COICOP code"""
   #define a lsit of all of the high level catagories of coicop codes.
   coicop_categories = [
     {"Code": "01", "Description": "Food and non-alcoholic beverages"},
@@ -1244,6 +1245,7 @@ def findCoicop(company_name, all_data):
 
 
 def findSIC_ofCompany(company_name, allData):
+  """method to categorise a company under a SIC code"""
   
 
 
@@ -2091,7 +2093,8 @@ def findSIC_ofCompany(company_name, allData):
 
 
 #coicop codes---------------------------------------------------
-def findNextCompany():
+def findNextCoicop():
+  """meethod to find a random coicop code"""
   #define a lsit of all of the high level catagories of coicop codes.
  
   #lists for each section of coicop
@@ -3311,7 +3314,7 @@ def findNextCompany():
   
   
 
-findNextCompany()  
+
 
 
 

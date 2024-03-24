@@ -3,8 +3,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-#method to scrape a link using selenium
+
 def seleniumScraper(linkToScrape):
+    """method to scrape a link using selenium"""
+    
     #opens the link in chrome
     driver = webdriver.Chrome()
     driver.get(linkToScrape)
@@ -17,6 +19,7 @@ def seleniumScraper(linkToScrape):
 
 #SIC codes------------------------------------------------------    
 def sicSearchCompaniesHouse(company_name,SIC):
+    """method to scrape companies house based on sic code"""
     #opens the link in chrome
     driver = webdriver.Chrome()
     #loading companies house web page

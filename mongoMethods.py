@@ -4,8 +4,8 @@ import json
 from bson.objectid import ObjectId
 
     
-    #method to insert data into mongo
 def mongoInsertDataMethod(insert,collection_name):
+        """method to insert data into mongo"""
             
         ## Updated local connection string
         localConnString = "mongodb://localhost:27017"
@@ -29,8 +29,9 @@ def mongoInsertDataMethod(insert,collection_name):
     
     
 
-#method to gather all mongo data    
-def getAllMongo(collection_name):    
+  
+def getAllMongo(collection_name):  
+        """method to gather all mongo data  """  
         localConnString = "mongodb://localhost:27017"
         # Create a new client and connect to the server
         client =MongoClient(localConnString, server_api=ServerApi('1'))

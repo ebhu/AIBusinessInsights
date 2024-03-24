@@ -17,17 +17,14 @@
             <button type="submit">Submit</button>
         </form>
 
-        {% if summary or market_summary %}
-            <div class="summaries">
-                {% if summary %}
+        {% if data %}
+            <div class="data">
+                {% if data %}
                     <h2>Company Summary:</h2>
-                    <p>{{ summary }}</p>
+                    <p>{{ data }}</p>
                 {% endif %}
 
-                {% if market_summary %}
-                    <h2>Market Summary:</h2>
-                    <p>{{ market_summary }}</p>
-                {% endif %}
+                
             </div>
         {% endif %}
     </div>

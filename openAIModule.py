@@ -1,7 +1,8 @@
 from openai import OpenAI
 
-#method to use chatGPT to process something
+
 def aiProcess(prompt):
+  """method to use chatGPT to process something"""
   #connect to openai api using my api key
   client = OpenAI(api_key="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")  
   #create a chat with chatGPT  

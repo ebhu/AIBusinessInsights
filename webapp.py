@@ -201,7 +201,7 @@ def find_kpis(company_name):
 def ddgMarketSearches(search,marketName):
     #scrape random web pages----------------------------------------------------------------------------------------------------------------------------
     #lists for the title content and link to webpages 
-    linkList=altCalledMethod(search,1)
+    linkList=ddgCalledMethod(search,1)
 
     exampleJson="""{
   "month": "Jan",
@@ -339,7 +339,7 @@ def find_product_type(company_name):
 
     #scaping official webiste then asking chatGPT----------------
     searchOne=company_name+"official website "
-    officialSite=altCalledMethod(searchOne, 1)
+    officialSite=ddgCalledMethod(searchOne, 1)
     x=officialSite[0]
     officialBody=seleniumScraper(x)
     bodyInParts=split_string_into_ten(officialBody)
@@ -360,7 +360,7 @@ def find_product_type(company_name):
         if 'text' in r:
             answer_text = r['text']
             break"""
-    list=altCalledMethod(company_name,5)    
+    list=ddgCalledMethod(company_name,5)    
     for item in list:
       answer_text=seleniumScraper(item)
       promptThree="Read the following text from a general web search and tell me what kind of products this company sells. Respond with only the product in one word and then provide a confidence score out of ten to show how certain you are that the company sells this product:" + answer_text+"""
@@ -406,7 +406,7 @@ def best_seller(company_name, product):
 
     #scaping official webiste then asking chatGPT----------------
     searchOne=company_name+"official website "
-    officialSite=altCalledMethod(searchOne, 1)
+    officialSite=ddgCalledMethod(searchOne, 1)
     x=officialSite[0]
     officialBody=seleniumScraper(x)
     bodyInParts=split_string_into_ten(officialBody)
@@ -428,7 +428,7 @@ def best_seller(company_name, product):
         if 'text' in r:
             answer_text = r['text']
             break"""
-    list=altCalledMethod(search,5)
+    list=ddgCalledMethod(search,5)
     for item in list:
       answer_text=seleniumScraper(item)
       promptThree="Read the following text from a general web search and tell me which "+product+" is the most sold. Also provide a confidence score out of ten to show how certain you are that the company sells this product:" + answer_text+"""
@@ -440,7 +440,7 @@ def best_seller(company_name, product):
           print("error with general web search")    
   
     #searching different web results
-    linkList=altCalledMethod(search,10)
+    linkList=ddgCalledMethod(search,10)
     for link in linkList:
         Body=seleniumScraper(link)
         bodyInPartsTwo=split_string_into_ten(officialBody)
@@ -481,7 +481,7 @@ def companyInsert(industry,company_name,product_type,most_popular,ceo,net_profit
 def webSearchCompleteJson(company_name):
     #scrape random web pages----------------------------------------------------------------------------------------------------------------------------
     #lists for the title content and link to webpages 
-    linkList=altCalledMethod(company_name,5)
+    linkList=ddgCalledMethod(company_name,5)
 
     global companyJson
     strWebResults=""  

@@ -19,28 +19,29 @@ app = Flask(__name__)
 # JSON template for company data to be stored in
 companyJson="""{
     "company_name" : [{"value": "?", "source": "?"}],
-    "type of product": [{"value": "?", "source": "?"}],
-    "most popular product": [{"value": "?", "source": "?"}],
-    "ceo ": [{"value": "?", "source": "?"}],
-    "net profit ": [{"value": "?", "source": "?"}],
-    "share price": [{"value": "?", "source": "?"}],
+    "type_of_product": [{"value": "?", "source": "?"}],
+    "most_popular_product": [{"value": "?", "source": "?"}],
+    "ceo": [{"value": "?", "source": "?"}],
+    "net_profit ": [{"value": "?", "source": "?"}],
+    "share_price": [{"value": "?", "source": "?"}],
     "other_info": {
-    "?"
-    }
+    "key": "value"
+    },
     "qualitative_info": {
-    "?"
+    "key": "value"
+    }
     }
   """
     
 def validate_json(json_str):
     """Validate JSON string"""
     try:
+        #attempt to cast json string to json object and output if successful
         json_obj = json.loads(json_str)
         print("Json str valid")
-        return json_obj
     except ValueError as e:
+        #output if failure i.e. not valid json string
         print("Error: Invalid JSON format:", e)
-        return None
     
 #method to combine search results
 def combine_articles(titleList,linkList, contentList):
@@ -73,34 +74,7 @@ def split_string_into_ten(text):
     start_index = end_index
 
   return substrings
-
-def coicopMarketAnalysis(company_name, all_data):
-   """Perform market analysis based on COICOP."""
-   description="unknown"
-   #find the coicop of the product
-   try:
-    description=findCoicop(company_name,all_data)
-   except:
-    print("Error catagorising company") 
    
-   #if the category is determined perform market searches
-   if description!="unkown":
-      #createing searches with the description 
-      searchOne="top companies in the "+description+" market 2024"
-      searchTwo="what is the most sold "+description+" 2024"
-      searchThree=description+" market size 2024" 
-      searchFour=description+" market analysis 2024"
-
-      #perform the searches  
-      ddgMarketSearches(searchOne, description)
-      ddgMarketSearches(searchTwo, description)
-      ddgMarketSearches(searchThree, description)
-      ddgMarketSearches(searchFour, description)
-
-   #return the description 
-   return description
-   
-
 #------------------------------------------------------------------------------DuckDuckGO methods-------------------------------------------------------------------------------
 
 
@@ -109,10 +83,12 @@ def find_kpis(company_name):
 
   #creating search with company name
   search="site:finance.yahoo.com "+company_name
+  #getting links from search results
   linkList=ddgCalledMethod(search,10)
   #count as length of linkList
   count=len(linkList)
 
+  #example json for the AI
   json_to_find="""{
      "eps": ?,
      "shareprice" : ?
@@ -123,7 +99,7 @@ def find_kpis(company_name):
      "turnover" : ?
     }
       """
-
+  #for every link try and find kpi values
   for x in range(count):
             try:
               #scrape every link that was found
@@ -147,8 +123,9 @@ def ddgMarketSearches(search,marketName):
     """method to perform searches to find information about the market"""
     #scrape random web pages----------------------------------------------------------------------------------------------------------------------------
     #lists for the title content and link to webpages 
-    linkList=altCalledMethod(search,1)
+    linkList=ddgCalledMethod(search,1)
 
+    #example json for the AI
     exampleJson="""{
   "month": "Jan",
   "year": 2024,
@@ -175,6 +152,7 @@ def ddgMarketSearches(search,marketName):
     }
   ]
 }"""
+    #initialise web results as blank
     strWebResults=""  
 
     for link in linkList:
@@ -196,8 +174,8 @@ def ddgMarketSearches(search,marketName):
 
 def ddgCalledMethod(search, mRes):
   """method to make a ddg search convieniently"""
+  #intiialise list to add the results links
   linkList=[]
-  count=0
 
   #ddg general search on the web
   with DDGS() as ddgs:
@@ -205,15 +183,14 @@ def ddgCalledMethod(search, mRes):
           # Concatenate the text and add a newline for readability
           linkStr=r['href']
           linkList.append(linkStr)
-          count+=1
-
+        
+  #return the links of results
   return linkList        
 
 def altCalledMethod(search,mRes):
   """alternative to duckduckgo when rate limited"""
   task = Startpage()
   results = task.search(search)
-  print(results[1])
   return results[:mRes]
 
     
@@ -223,7 +200,7 @@ def webSearchCompleteJson(company_name):
     """method to handle an individual company """
     #scrape random web pages----------------------------------------------------------------------------------------------------------------------------
     #lists for the title content and link to webpages 
-    linkList=altCalledMethod(company_name,5)
+    linkList=ddgCalledMethod(company_name,5)
 
     #get global JSON
     global companyJson
@@ -238,7 +215,7 @@ def webSearchCompleteJson(company_name):
               please respond to this using the json template ONLY. Fill in the question mark placeholders with the specific informaiton and source and insert any other information in the other_info section as a json object. For the source, do not just say website but actually include the 
               website that the information is found from. If you cannot find the specific information leave their values as unchanged. If the information
               has already been collected (i.e. has no question mark placeholder and has an entry containing value and source) you should add another entry in that piece of information's list of dictionaries, stating the value and the source. In the other info section do not replace anyting, instead extend 
-              it to include the new other information that has been collected. Remember to respond only with Json, ensure the sytnax is correct, with no errors for example missing :s or }s."""
+              it to include the new other information that has been collected. For now, do not add anything into the qualititive info section but do keep it blank.Remember to respond only with Json, ensure the sytnax is correct, with no errors for example missing :s or }s."""
               #parse link's content with chatGPT 
               strWebResults=aiProcess(PromptContentScrape)
               print(strWebResults)
@@ -250,24 +227,27 @@ def webSearchCompleteJson(company_name):
 def redditSearchQualitative(company_name):
     """method to fill in qualitative information from reddit"""
     #create search for company on reddit
-    search="site:reddit.com"+company_name
+    search="site:reddit.com "+company_name
     #lists for the title content and link to webpages 
-    linkList=ddgCalledMethod(search,10)
+    linkList=ddgCalledMethod(search,5)
 
     #get global JSON
     global companyJson
-    strWebResults=""  
+    strRedditResults=""  
 
     for link in linkList:
             try:
               #scrape every link that was found
               scrapedResults=seleniumScraper(link)
+              #parse results with chatgpt
               PromptContentScrape="Act as a qualitative research data extraction system. Read the following reddit text and extract any qualitative information about "+company_name+":"+scrapedResults+"""Reply
               to this message in json format only,  The following is the json template,"""+companyJson+"""please respond to this using the json template ONLY. Do not remove any of the existing data in the json template! Simply add any 
-              qualitative information in the qualitative_info section and include the source it was found from (i.e. reddit user on reddit post). It is of utmost importance that you reply only in VALID JSON so ensure there are no errors in the response.
+              qualitative information in the qualitative_info section and include the source it was found from (i.e. reddit user on reddit post). Focus mainly on opinions of people. 
+              It is of utmost importance that you reply only in VALID JSON so ensure there are no errors in the response.
               """
               #parse link's content with chatGPT 
               strRedditResults=aiProcess(PromptContentScrape)
+              print(strRedditResults)
               companyJson=strRedditResults
             except:
               print("An exception occurred")      
@@ -277,6 +257,7 @@ def redditSearchQualitative(company_name):
             
 def productsMethod(company_name):
    """method that calls both of the methods and enters the value into the global JSON  """
+   #set product type and best seller to unkown as default 
    type="unknown"
    bseller="unknown"
    try:
@@ -294,17 +275,20 @@ def productsMethod(company_name):
       companyJson = json.dumps(companyJson)
 
    except:
+      #output if error
       print("error finding products/product type") 
-    
+   #return the type of produce 
    return type
 
 
 def find_product_type(company_name):
     """method to attempt to find what products a company sells"""
+    #empty lists for product type and their respective confidence scores
     products=[]
     confidence_scores=[]
 
     def splitResponse(response):
+            """method to split the AIs response using the comma and then add them to the lists"""    
             try:
              product, conScore = response.split(", ")
              # Ensure numerical confidence score before appending
@@ -317,6 +301,7 @@ def find_product_type(company_name):
     #asking chatgpt normally-------------------------------------
     promptOne="What kind of products does this company sell and how confident are u on a scale of one to ten: "+ company_name+"? Respond with only the product in one word and then the confidence score seperated by a comma. For example : food, 7"
     try:
+      #get ai response and split it
       responseOne=aiProcess(promptOne)
       splitResponse(responseOne)
     except:
@@ -324,16 +309,19 @@ def find_product_type(company_name):
 
     #scaping official webiste then asking chatGPT----------------
     searchOne=company_name+"official website "
-    officialSite=altCalledMethod(searchOne, 1)
+    officialSite=ddgCalledMethod(searchOne, 1)
     x=officialSite[0]
     officialBody=seleniumScraper(x)
+    #splitting official website into ten so that there is no character limit breach
     bodyInParts=split_string_into_ten(officialBody)
     
     for part in bodyInParts:
         try:
+          #try and process each part to find an answer
           promptTwo="Read the following text from the official web site and tell me what kind of products this company sells. Respond with only the product in one word and then provide a confidence score out of ten to show how certain you are that the company sells this product:" + part+"""
           respond with only the product in one word and then the confidence score seperated by a comma. For example : food, 7"""
           responseTwo=aiProcess(promptTwo)
+          #split the response and therefore add to the lists
           splitResponse(responseTwo)
         except:
             print("error parsing official website")
@@ -345,9 +333,10 @@ def find_product_type(company_name):
         if 'text' in r:
             answer_text = r['text']
             break"""
-    list=altCalledMethod(company_name,5)    
+    #get the general search results
+    list=ddgCalledMethod(company_name,5)    
     for item in list:
-      answer_text=seleniumScraper(item)
+      answer_text=seleniumScraper(item)#scrape each result and then process
       promptThree="Read the following text from a general web search and tell me what kind of products this company sells. Respond with only the product in one word and then provide a confidence score out of ten to show how certain you are that the company sells this product:" + answer_text+"""
           respond with only the product in one word and then the confidence score seperated by a comma. For example : food, 7"""  
       try:
@@ -360,17 +349,19 @@ def find_product_type(company_name):
  # Find highest confidence score
     if confidence_scores:
       highest_score_index = confidence_scores.index(max(confidence_scores))
-      return products[highest_score_index]
+      return products[highest_score_index]#return the guess with the highest confidence score
     else:
        return None 
 
 
 def best_seller(company_name, product):
   """method to attempt to find a companies most sold/ most popular product"""
+  #empty lists for best seller guess and their respective confidence score
   products=[]
   confidence_scores=[]
 
   def splitResponse(response):
+            """method to split the AIs response using the comma and then add them to the lists"""
             try:
              product, conScore = response.split(", ")
              # Ensure numerical confidence score before appending
@@ -382,8 +373,10 @@ def best_seller(company_name, product):
              print(f"Error processing ChatGPT response: {e}")
 
     #asking chatgpt normally-------------------------------------
+  #asking ai directly
   promptOne="What is the most sold "+product+" that this company offers and how confident are u on a scale of one to ten: "+ company_name+"? Respond with only the product in one word and then the confidence score seperated by a comma. Do not include any other text/characters. For example : food, 7"
   try:
+    #splitting response then adding to lists
     responseOne=aiProcess(promptOne)
     splitResponse(responseOne)
   except:
@@ -391,16 +384,19 @@ def best_seller(company_name, product):
 
     #scaping official webiste then asking chatGPT----------------
     searchOne=company_name+"official website "
-    officialSite=altCalledMethod(searchOne, 1)
+    officialSite=ddgCalledMethod(searchOne, 1)
     x=officialSite[0]
     officialBody=seleniumScraper(x)
+    #split body into ten parts to avoid character limit breach
     bodyInParts=split_string_into_ten(officialBody)
-    
+    #process each part
     for part in bodyInParts:
         try:
+          #prompt the AI to read the part and give a guess
           promptTwo="Read the following text from the official web site and tell me what "+product+" from this company is the most popular/ most sold. Respond with only the product in one word and then provide a confidence score out of ten to show how certain you are that the company sells this product the most:" + part+"""
           respond with only the product in one word and then the confidence score seperated by a comma. Do not include any other text/characters. For example : food, 7"""
           responseTwo=aiProcess(promptTwo)
+          #call split response to add to lists
           splitResponse(responseTwo)
         except:
             print("error parsing official website")
@@ -413,19 +409,23 @@ def best_seller(company_name, product):
         if 'text' in r:
             answer_text = r['text']
             break"""
-    list=altCalledMethod(search,5)
+    list=ddgCalledMethod(search,5)
+    #get general search results 
     for item in list:
+      #scrape link from results
       answer_text=seleniumScraper(item)
+      #prompt ai to read link and guess
       promptThree="Read the following text from a general web search and tell me which "+product+" is the most sold. Also provide a confidence score out of ten to show how certain you are that the company sells this product:" + answer_text+"""
       respond with only the product in one word and then the confidence score seperated by a comma. Do not include any other text/characters. For example : food, 7"""  
       try:
-          resultsThree=aiProcess(promptThree)    
+          resultsThree=aiProcess(promptThree)
+          #split response to add  guess to list    
           splitResponse(resultsThree)
       except:
           print("error with general web search")    
   
     #searching different web results
-    linkList=altCalledMethod(search,10)
+    linkList=ddgCalledMethod(search,10)
     for link in linkList:
         Body=seleniumScraper(link)
         bodyInPartsTwo=split_string_into_ten(officialBody)
@@ -446,6 +446,31 @@ def best_seller(company_name, product):
     else:
        return None 
 
+def coicopMarketAnalysis(company_name, all_data):
+   """Perform market analysis based on COICOP."""
+   description="unknown"
+   #find the coicop of the product
+   try:
+    description=findCoicop(company_name,all_data)
+   except:
+    print("Error catagorising company") 
+   
+   #if the category is determined perform market searches
+   if description!="unkown":
+      #createing searches with the description 
+      searchOne="top companies in the "+description+" market 2024"
+      searchTwo="what is the most sold "+description+" 2024"
+      searchThree=description+" market size 2024" 
+      searchFour=description+" market analysis 2024"
+
+      #perform the searches  
+      ddgMarketSearches(searchOne, description)
+      ddgMarketSearches(searchTwo, description)
+      ddgMarketSearches(searchThree, description)
+      ddgMarketSearches(searchFour, description)
+
+   #return the description 
+   return description
 
 #-------------------------------------Other methods
 def resetcompanyJson():
@@ -453,16 +478,17 @@ def resetcompanyJson():
    global companyJson
    companyJson="""{
     "company_name" : [{"value": "?", "source": "?"}],
-    "type of product": [{"value": "?", "source": "?"}],
-    "most popular product": [{"value": "?", "source": "?"}],
-    "ceo ": [{"value": "?", "source": "?"}],
-    "net profit ": [{"value": "?", "source": "?"}],
-    "share price": [{"value": "?", "source": "?"}],
+    "type_of_product": [{"value": "?", "source": "?"}],
+    "most_popular_product": [{"value": "?", "source": "?"}],
+    "ceo": [{"value": "?", "source": "?"}],
+    "net_profit ": [{"value": "?", "source": "?"}],
+    "share_price": [{"value": "?", "source": "?"}],
     "other_info": {
-    "?"
-    }
+    "key": "value"
+    },
     "qualitative_info": {
-    "?"
+    "key": "value"
+    }
     }
   """
 
@@ -471,14 +497,19 @@ def getCompanyJson(company_name):
     """method to call all of the methods to find and extract data into the JSON format"""
     resetcompanyJson()
     global companyJson
+    #get main info and other info
     webSearchCompleteJson(company_name)
+    #get qualititive info
+    redditSearchQualitative(company_name)
+    #guess product and type of product
     productType=productsMethod(company_name)
     description=coicopMarketAnalysis(company_name,companyJson)
-  
     #validate correctness of json string
-    newCompanyJson =validate_json(companyJson)
+    validate_json(companyJson)
+    newCompanyJson =json.loads(companyJson)
+    #insert to mongo under description
+    print(newCompanyJson)
     mongoInsertDataMethod(newCompanyJson,description)
-
     return companyJson    
 
 

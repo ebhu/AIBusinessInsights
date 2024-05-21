@@ -4,7 +4,7 @@ from openai import OpenAI
 def aiProcess(prompt):
   """method to use chatGPT to process something"""
   #connect to openai api using my api key
-  client = OpenAI(api_key="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")  
+  client = OpenAI(api_key="")  
   #create a chat with chatGPT  
   response = client.chat.completions.create(
     model="gpt-3.5-turbo",
